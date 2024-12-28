@@ -95,36 +95,42 @@ now=$(date +"%Y-%m-%d_%H-%M-%S")
 mkdir -p /backup/$now/nginx/ /backup/$now/php/ /backup/$now/mysql/
 check_exit_code 6
 
-echo_task 7/40 "Backup previous NGINX configuration"
-cp -r /etc/nginx/ /backup/$now/nginx/
-check_exit_code 7
-
-echo_task 8/40 "Backup previous PHP configuration"
-cp -r /etc/php/ /backup/$now/php/
-check_exit_code 8
-
-echo_task 9/40 "Backup previous MySQL configuration"
-cp -r /etc/mysql/ /backup/$now/mysql/
-check_exit_code 9
-
-echo_task 10/40 "Remove previous NGINX installation"
-apt purge -y -q nginx-core nginx-common nginx
-check_exit_code 10
-apt autoremove -y -q
-check_exit_code 10.1
-
-echo_task 11/40 "Add NGINX repository"
+echo_task 7/40 "Add NGINX repository"
 echo "deb http://nginx.org/packages/debian/ bullseye nginx" > /etc/apt/sources.list.d/nginx.list
 wget https://nginx.org/keys/nginx_signing.key -O /etc/apt/trusted.gpg.d/nginx_signing.asc
+check_exit_code 7
+
+echo_task 8/40 "Update package list"
+apt update -y -q
+check_exit_code 8
+
+echo_task 9/40 "Install NGINX"
+apt install -y -q nginx
+check_exit_code 9
+
+echo_task 10/40 "Backup NGINX configuration"
+if [ -d "/etc/nginx/" ]; then
+    cp -r /etc/nginx/ /backup/$now/nginx/
+fi
+check_exit_code 10
+
+echo_task 11/40 "Backup PHP configuration"
+if [ -d "/etc/php/" ]; then
+    cp -r /etc/php/ /backup/$now/php/
+fi
 check_exit_code 11
 
-echo_task 12/40 "Update package list"
-apt update -y -q
+echo_task 12/40 "Backup MySQL configuration"
+if [ -d "/etc/mysql/" ]; then
+    cp -r /etc/mysql/ /backup/$now/mysql/
+fi
 check_exit_code 12
 
-echo_task 13/40 "Install NGINX 1.26.1"
-apt install -y -q nginx=1.26.1-1~bullseye
+echo_task 13/40 "Remove previous NGINX installation"
+apt purge -y -q nginx-core nginx-common nginx
 check_exit_code 13
+apt autoremove -y -q
+check_exit_code 13.1
 
 echo_task 14/40 "Prepare for NGINX Brotli Compilation"
 apt install -y cmake build-essential libssl-dev libpcre3 libpcre3-dev

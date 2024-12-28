@@ -30,7 +30,34 @@ apt upgrade -y
 check_exit_code 2
 
 echo_task 3/40 "Install common development packages"
-apt install -y -q zip unzip fail2ban htop sqlite3 nload mlocate nano memcached software-properties-common gnupg2 wget
+# Install packages one by one to better handle potential issues
+packages=(
+    "zip"
+    "unzip"
+    "fail2ban"
+    "htop"
+    "sqlite3"
+    "nload"
+    "mlocate"
+    "nano"
+    "memcached"
+    "software-properties-common"
+    "gnupg2"
+    "wget"
+)
+
+for package in "${packages[@]}"; do
+    echo "Installing $package..."
+    DEBIAN_FRONTEND=noninteractive apt install -y -q "$package"
+    if [ $? -ne 0 ]; then
+        echo "Failed to install $package"
+        exit 1
+    fi
+done
+
+# Update mlocate database in background to prevent hanging
+updatedb &
+
 check_exit_code 3
 
 echo_task 4/40 "Add Sury PHP repository"

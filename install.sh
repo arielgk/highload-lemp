@@ -44,6 +44,7 @@ packages=(
     "software-properties-common"
     "gnupg2"
     "wget"
+    "git"
 )
 
 for package in "${packages[@]}"; do
@@ -121,7 +122,7 @@ apt autoremove -y -q
 check_exit_code 11.1
 
 echo_task 12/40 "Prepare for NGINX Brotli Compilation"
-apt install -y cmake build-essential libssl-dev libpcre3 libpcre3-dev
+apt install -y cmake build-essential libssl-dev libpcre3 libpcre3-dev git
 check_exit_code 12
 
 echo_task 13/40 "Disable external access to PHP-FPM scripts"
